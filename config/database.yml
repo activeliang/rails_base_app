@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  user: <%= ENV['POSTGRES_USER'] %>
+  host: <%= ENV['POSTGRES_HOST'] %>
+  pool: 5
+
+development:
+  <<: *default
+  user: liang
+  database: myapp_development
+
+
+test:
+  <<: *default
+  database: myapp_test
+
+production:
+  <<: *default
+  user: liang
+  database: myapp_development

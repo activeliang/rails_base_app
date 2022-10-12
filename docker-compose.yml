@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  web:
+    build: 
+      context: ./
+      dockerfile: ./.docker/Dockerfile
+    environment:
+      VITE_RUBY_HOST: 0.0.0.0
+    env_file:
+      - ./docker/${RAILS_ENV:-development}.env
+    # command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/myapp
+      - vendor:/usr/src/app/node_modules
+      - /var/log/myapp1:/app/myapp/log
+    ports:
+      - "3000:3000"
+      - "3036:3036"
+
+volumes:
+  data:
+  vendor:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/node_modules

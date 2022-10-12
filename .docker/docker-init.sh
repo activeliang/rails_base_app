@@ -1,0 +1,1 @@
+docker compose run --no-deps web rails new . --force --database=postgresql --skip-turbolinks --skip-spring --skip-sprockets --skip-bundle
