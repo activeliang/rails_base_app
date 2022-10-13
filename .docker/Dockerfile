@@ -17,7 +17,7 @@ COPY Gemfile /myapp/Gemfile
 COPY Gemfile.lock /myapp/Gemfile.lock
 # RUN gem sources --add https://mirrors.tuna.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/
 # RUN bundle config mirror.https://rubygems.org https://mirrors.tuna.tsinghua.edu.cn/rubygems
-RUN bundle install
+RUN bundle check || bundle install
 # RUN if [ $RAILS_ENV == 'production' ] ; then bundle exec rake assets:precompile ; fi
 RUN rails assets:precompile
 

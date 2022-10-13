@@ -16,8 +16,8 @@ echo -e "${turquoise}Starting the application in ${RAILS_ENV} mode...${reset}"
 # rails db:create
 
 # Apply database migrations
-echo -e "${turquoise}Applying database migrations...${reset}"
-rails db:migrate
+# echo -e "${turquoise}Applying database migrations...${reset}"
+# rails db:migrate
 
 # Apply database migrations
 # echo -e "${turquoise}Creating seeds...${reset}"
@@ -27,10 +27,11 @@ rails db:migrate
 echo -e "${turquoise}Starting server...${reset}"
 
 if [ $RAILS_ENV = "development" ]; then
-  yarn && bundle
+  yarn install
+  bundle install
   foreman start -f Procfile.dev
 else
-  # bundle exec puma -e production -C config/puma.rb
-  bundle exec rails s
+  bundle exec puma -e production -C config/puma.rb
+  # bundle exec rails s
 fi
 

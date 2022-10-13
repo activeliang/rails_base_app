@@ -28,5 +28,41 @@ console.log('Visit the guide for more information: ', 'https://vite-ruby.netlify
 // import '~/index.css'
 import { createApp } from 'vue'
 import App from './App.vue'
+import '~/entrypoints/assets/styles.css'
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import router from './router'
+import store from './store'
 
-createApp(App).mount('#app')
+import { securedAxiosItem, plainAxiosItem } from '@/common/api'
+import dayjs from 'dayjs' 
+
+const app = createApp(App)
+const vuetify = createVuetify() // Replaces new Vuetify()
+
+app.config.globalProperties.$http = plainAxiosItem
+app.config.globalProperties.$https = securedAxiosItem
+app.config.globalProperties.$dayjs = dayjs
+
+// import Confirm from '@/components/popup/confirm.js'
+// app.config.globalProperties.$confirm = Confirm
+
+// import Snackbar from '@/components/popup/snackbar.js'
+// app.config.globalProperties.$snackbar = Snackbar
+
+import Alert from '@/components/popup/alert.js'
+Alert.install(app)
+
+import Confirm from '@/components/popup/confirm.js'
+Confirm.install(app)
+
+app.config.globalProperties.$copy = text => navigator.clipboard.writeText(text)
+
+app.use(vuetify)
+app.use(router)
+app.use(store)
+
+app.mount('#app')
+
+
+

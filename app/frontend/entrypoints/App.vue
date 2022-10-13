@@ -1,9 +1,5 @@
 <template>
-  <h1>Hello From {{ componentName }} component...aaa</h1>
-  <button @click="count++">Count is: {{ count }}</button>
-  <br>
-  <!-- <Example /> -->
-
+  <router-view/>
 </template>
 
 <script>
@@ -23,7 +19,4 @@ export default {
 </script>
 
 <style scoped>
-button {
-  font-weight: bold;
-}
 </style>
