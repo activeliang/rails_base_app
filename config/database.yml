@@ -8,14 +8,14 @@ default: &default
 development:
   <<: *default
   user: liang
-  database: myapp_development
+  database: <%= ENV['DATABASE_NAME'] %>_development
 
 
 test:
   <<: *default
-  database: myapp_test
+  database: <%= ENV['DATABASE_NAME'] %>_test
 
 production:
   <<: *default
   user: liang
-  database: myapp_development
+  database: <%= ENV['DATABASE_NAME'] %>

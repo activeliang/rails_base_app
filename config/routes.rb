@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "articles#index"
   root :to => "application#index"
-  # mount ExceptionTrack::Engine => "/err"
+  mount ExceptionTrack::Engine => "/err", constraints: AdminConstraint.new
+  get '/err', to: redirect('/404.html')
   match "*path", to: "application#index", format: false, via: :get
 end

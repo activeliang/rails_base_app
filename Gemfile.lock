@@ -1,5 +1,15 @@
+GIT
+  remote: https://github.com/activeliang/exception-track
+  revision: 436128253c6b0b10c7ea38fb36554cecd0c3d7d9
+  ref: 4361282
+  specs:
+    exception-track (0.5.2)
+      exception_notification (~> 4)
+      rails (>= 4.0, < 8)
+      will_paginate
+
 GEM
-  remote: https://rubygems.org/
+  remote: https://mirrors.tuna.tsinghua.edu.cn/rubygems/
   specs:
     actioncable (7.0.4)
       actionpack (= 7.0.4)
@@ -98,6 +108,9 @@ GEM
     diff-lcs (1.5.0)
     dry-cli (0.7.0)
     erubi (1.11.0)
+    exception_notification (4.5.0)
+      actionmailer (>= 5.2, < 8)
+      activesupport (>= 5.2, < 8)
     faraday (2.6.0)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
@@ -268,6 +281,7 @@ DEPENDENCIES
   bootsnap
   capybara
   debug
+  exception-track!
   faraday
   importmap-rails
   jbuilder

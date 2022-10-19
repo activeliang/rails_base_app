@@ -17,6 +17,11 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
+  def self.test_cron
+    puts "-----#{Time.now}"
+    Rails.logger.info("-2----#{Time.now}")
+  end
+
   private
     def logout_access_token
       session = JWTSessions::Session.new namespace: "user_id_#{id}"

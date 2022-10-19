@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 # Remove a potentially pre-existing server.pid for Rails.
 rm -f /myapp/tmp/pids/server.pid
 
+cd /myapp
 # Then exec the container's main process (what's set as CMD in the Dockerfile).
 exec "$@"
 
@@ -31,7 +32,9 @@ if [ $RAILS_ENV = "development" ]; then
   bundle install
   foreman start -f Procfile.dev
 else
-  bundle exec puma -e production -C config/puma.rb
-  # bundle exec rails s
+  # bundle exec puma -e production -C /myapp/config/puma.rb
+  /usr/sbin/crond
+  bundle exec rails db:migrate
+  cd /myapp && bundle exec rails s
 fi
 

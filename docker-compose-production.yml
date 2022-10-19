@@ -1,23 +1,24 @@
 version: "3.9"
 services:
   web:
-    build: 
-      context: ./
-      dockerfile: ./.docker/Dockerfile
+    image: activeliang/rails_base_app
     environment:
       VITE_RUBY_HOST: 0.0.0.0
     env_file:
       - ./.docker/env_${RAILS_ENV:-development}.env
     # command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
-      - .:/myapp
-      # - vendor:/usr/src/app/node_modules
-      # - /var/log/myapp:/app/myapp/log
+      - /tmp/sockets/myapp:/myapp/tmp/sockets
+      - /var/log/myapp:/myapp/log
+      - ./docker:/myapp/docker
+      - /var/www/data/myapp/public:/myapp/public # 配合nginx的gzip功能 加速网络访问
     ports:
       - "3000:3000"
       - "3036:3036"
     volumes_from:
       - box
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   box:
     image: busybox

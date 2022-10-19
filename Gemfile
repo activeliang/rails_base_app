@@ -1,4 +1,4 @@
-source "https://rubygems.org"
+source "https://mirrors.tuna.tsinghua.edu.cn/rubygems/"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.1.2"
@@ -51,7 +51,7 @@ gem "bootsnap", require: false
 gem 'vite_rails'
 gem "jwt_sessions"
 gem 'faraday'
-# gem 'exception-track', git: 'https://github.com/activeliang/exception-track.git', ref: '4361282'
+gem 'exception-track', git: 'https://github.com/activeliang/exception-track', ref: '4361282'
 gem 'ransack'
 gem 'whenever', require: false
 gem 'will_paginate'

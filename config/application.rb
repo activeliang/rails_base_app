@@ -10,6 +10,10 @@ module Myapp
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
+    config.time_zone = "Beijing"
+    config.enable_dependency_loading = true
+    config.autoload_paths += %W[#{Rails.root}/lib]
+    config.eager_load_paths += %W[#{Rails.root}/lib]
 
     # Configuration for the application, engines, and railties goes here.
     #
