@@ -80,3 +80,20 @@ name later on after developing it for a bit. You can re-run this
 script as many times as you want until you're happy.
 
 EOF
+
+cat << EOF
+
+After changing the name, the initialization instructions that need to be executed:
+
+docker compose run web bundle exec vite install
+docker compose run web bundle exec rails db:create
+docker compose run web bundle exec rails db:migrate
+docker compose run web bundle exec rails db:seed
+
+Executing...
+EOF
+
+docker compose run web bundle exec vite install
+docker compose run web bundle exec rails db:create
+docker compose run web bundle exec rails db:migrate
+docker compose run web bundle exec rails db:seed

@@ -63,7 +63,7 @@ export default {
     options: { 
       color: 'info',
       width: 290,
-      zIndex: 200,
+      zIndex: 999999,
       showCancel: true,
       confirmBtnText: '确定'
     }
