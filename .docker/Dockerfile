@@ -101,6 +101,8 @@ EXPOSE 3000
 
 RUN rm -fr /var/cache/apk/*
 
+RUN echo -e "#! /bin/sh\ncd /myapp && bundle exec rails \$*" >> /usr/local/bin/rails && chmod +x /usr/local/bin/rails
+
 # Configure the main process to run when running the image
 # CMD ["rails", "server", "-b", "0.0.0.0"]
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]
