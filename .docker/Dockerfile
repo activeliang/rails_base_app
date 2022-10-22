@@ -35,11 +35,7 @@ FROM ruby:3.1.2-alpine AS vite_host
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 # RUN apt-get update -qq && apt-get install -y postgresql-client
 
-COPY --from=node_host /usr/lib /usr/lib
-COPY --from=node_host /usr/local/share /usr/local/share
-COPY --from=node_host /usr/local/lib /usr/local/lib
-COPY --from=node_host /usr/local/include /usr/local/include
-COPY --from=node_host /usr/local/bin /usr/local/bin
+COPY --from=node_host /usr/local/bin/node /usr/local/bin/node
 
 RUN set -eux & apk add --no-cache yarn
 
@@ -66,11 +62,7 @@ RUN apk add gcompat
 # RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 # RUN apt-get update && apt-get install -y nodejs
 
-COPY --from=node_host /usr/lib /usr/lib
-COPY --from=node_host /usr/local/share /usr/local/share
-COPY --from=node_host /usr/local/lib /usr/local/lib
-COPY --from=node_host /usr/local/include /usr/local/include
-COPY --from=node_host /usr/local/bin /usr/local/bin
+COPY --from=node_host /usr/local/bin/node /usr/local/bin/node
 
 # RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 # RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
