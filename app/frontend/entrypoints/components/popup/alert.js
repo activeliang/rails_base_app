@@ -1,5 +1,7 @@
 import { createApp, render, getCurrentInstance } from 'vue'
 import { createVuetify } from 'vuetify'
+import '~/entrypoints/assets/styles.css'
+import 'vuetify/styles'
 const vuetify = createVuetify() 
 import MessageConstructor from './alert.vue'
 
@@ -26,16 +28,8 @@ var message = function (options) {
   document.body.appendChild(container.firstElementChild);
 };
 ['success', 'info', 'warning', 'error'].forEach(function (type) {
-  message[type] = function (options) {
-      if (typeof options === 'string') {
-          return message({
-              type: type,
-              message: options,
-          });
-      }
-      else if (typeof options === 'object') {
-          return message({ type: type, ...options});
-      }
+  message[type] = function (content, options) {
+    return message({ type: type, message: content, ...options});
   };
 });
 // 消息关闭时的相关处理函数...

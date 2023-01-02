@@ -70,6 +70,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-alert v-show="false"></v-alert>
+    
   </v-app>
 </template>
 
@@ -119,7 +122,13 @@ export default {
     },
     toggleTheme() {
       this.$store.commit('save', { themeDark: !this.theme.global.current.value.dark })
-      this.theme.global.name.value = this.theme.global.current.value.dark ? 'light' : 'dark'
+      if (this.theme.global.current.value.dark) {
+        document.documentElement.classList.remove('dark')
+        this.theme.global.name.value = 'light'
+      } else {
+        document.documentElement.classList.add('dark')
+        this.theme.global.name.value = 'dark'
+      }
     },
     login() {
 

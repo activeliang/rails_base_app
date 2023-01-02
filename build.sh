@@ -2,7 +2,7 @@
 build_opts="--platform linux/amd64" # building at M1 mac for linux
 # RAILS_ENV=production docker buildx build $build_opts --no-cache -t activeliang/rails_base_app -f ./.docker/Dockerfile .
 # RAILS_ENV=production sudo docker buildx build ./ --platform linux/amd64 --load -t activeliang/rails_base_app -f ./.docker/Dockerfile
-RAILS_ENV=production docker build ./ --platform linux/amd64 -t activeliang/myapp-web -f ./.docker/Dockerfile --build-arg RAILS_ENV=production --progress=plain
+RAILS_ENV=production docker build ./ --platform linux/amd64 -t activeliang/myapp-web -f ./.docker/Dockerfile --build-arg RAILS_ENV=production --progress=plain --build-arg HTTP_PROXY=http://host.docker.internal:7890 --build-arg https_proxy=http://host.docker.internal:7890
 
 
 # --progress=plain

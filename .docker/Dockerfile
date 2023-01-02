@@ -9,12 +9,13 @@ RUN apk add build-base
 RUN apk add linux-headers
 RUN apk add libpq-dev
 RUN apk add git
+RUN apk add --no-cache g++ musl-dev make libressl-dev openssl-dev libstdc++
 RUN mkdir -p /myapp
 WORKDIR /myapp
 COPY Gemfile* ./
 RUN gem install qiniu
 RUN bundle config set --local path '/bundle'
-RUN bundle config set --local without 'development test'
+# RUN bundle config set --local without 'development test'
 ENV ARCHFLAGS "-arch x86_64"
 RUN ARCHFLAGS="-arch x86_64" bundle install
 
@@ -27,6 +28,7 @@ RUN apk add libpng-dev
 RUN mkdir -p /myapp
 WORKDIR /myapp
 COPY package* ./
+COPY yarn.loc* ./
 RUN yarn config set registry https://registry.npmmirror.com
 RUN yarn install
 
@@ -46,16 +48,17 @@ COPY ./vite.config.ts /myapp/vite.config.ts
 WORKDIR /myapp
 COPY --from=cache_modules_host /myapp/node_modules /myapp/node_modules
 COPY package* ./
+COPY postcss* ./
+COPY tailwind* ./
+COPY package* ./
 RUN yarn build
 
 FROM ruby:3.1.2-alpine
 # RUN sed -i "s@http://deb.debian.org@http://mirrors.aliyun.com@g" /etc/apt/sources.list && rm -Rf /var/lib/apt/lists/* && apt-get update
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 # RUN apt-get update -qq && apt-get install -y postgresql-client
-RUN apk update && apk add --update --no-cache postgresql-client
-RUN apk add tzdata
-RUN apk add curl nano 
-RUN apk add gcompat 
+RUN apk update && apk add --update --no-cache postgresql-client tzdata curl nano gcompat
+RUN apk add --no-cache libstdc++
 
 # install nodejs 
 # RUN apt install sudo
@@ -69,6 +72,7 @@ COPY --from=node_host /usr/local/bin/node /usr/local/bin/node
 # RUN sudo apt update && sudo apt install yarn
 
 RUN set -eux & apk add --no-cache yarn
+RUN yarn config set registry https://registry.npmmirror.com
 
 # RUN npm install --global yarn
 RUN gem install foreman

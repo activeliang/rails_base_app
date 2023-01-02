@@ -1,3 +1,16 @@
 @tailwind base;
 /* @tailwind components; */
 @tailwind utilities;
+
+
+/* global-alert */
+.my-global-message {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  transition: top 0.6s linear;
+}
+.my-global-message .alert {
+  margin: auto;
+}

@@ -8,6 +8,8 @@ class Api::V1::UsersController < ApplicationController
   def index
     page = params[:page] || 1
     per_page = params[:per_page] || 20
+
+    binding.pry
     @accounts = User.order(id: :desc).paginate( :page => page, per_page: per_page )
     render json: { code: 0, data: @accounts, paginate: paginate_data(@accounts) }
   end
