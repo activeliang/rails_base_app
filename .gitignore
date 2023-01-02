@@ -45,3 +45,5 @@ log
 # private 
 *.env
 *.log
+deploy.sh
+

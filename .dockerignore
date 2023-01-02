@@ -12,3 +12,5 @@ storage/*
 **/*.keep
 public/assets*
 *.log
+storage
+deploy.sh

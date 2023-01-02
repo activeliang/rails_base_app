@@ -1,35 +1,27 @@
 version: "3.9"
 services:
   web:
-    image: activeliang/rails_base_app
+    image: activeliang/myapp-web
     environment:
+      TZ: Asia/Shanghai
       VITE_RUBY_HOST: 0.0.0.0
+      RAILS_ENV: production
     env_file:
-      - ./.docker/env_${RAILS_ENV:-development}.env
+      - ./.docker/env_production.env
     # command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - /tmp/sockets/myapp:/myapp/tmp/sockets
       - /var/log/myapp:/myapp/log
       - ./docker:/myapp/docker
-      - /var/www/data/myapp/public:/myapp/public # 配合nginx的gzip功能 加速网络访问
-    ports:
-      - "3000:3000"
-      - "3036:3036"
-    volumes_from:
-      - box
+      - /var/www/data/myapp:/www # 配合nginx的gzip功能 加速网络访问
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    restart: always
 
-  box:
-    image: busybox
-    volumes:
-      - /box
-
-volumes:
-  data:
-  vendor:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/node_modules
+  # web_ws:
+  #   image: activeliang/rtr_wms-web
+  #   env_file:
+  #     - ./.docker/env_${RAILS_ENV:-development}.env
+  #   command: /bin/sh -l -c 'cd /rtr_wms && bundle exec bin/rails runner -e production "Binance.listen_user_data" >> /rtr_wms/log/binance_listen.log 2>&1'
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"

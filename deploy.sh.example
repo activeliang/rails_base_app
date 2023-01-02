@@ -1,0 +1,33 @@
+#! /bin/bash
+
+echo 'build docker_app'
+RAILS_ENV=production docker build ./ --platform linux/amd64 -t activeliang/rtr_wms-web -f ./.docker/Dockerfile --build-arg RAILS_ENV=production --build-arg HTTP_PROXY=http://host.docker.internal:7890 --build-arg https_proxy=http://host.docker.internal:7890
+
+echo 'push docker_app'
+docker push activeliang/rtr_wms-web
+
+echo 'init work folder'
+ssh root@hk3.huiyutongwechat.top 'mkdir -p /home/deploy && mkdir -p /home/deploy/rtr_wms'
+
+echo 'update docker-compose.yml'
+scp docker-compose-production.yml root@hk3.huiyutongwechat.top:/home/deploy/rtr_wms/docker-compose.yml
+
+echo 'pull Image from Docker Hub'
+ssh root@hk3.huiyutongwechat.top  'docker pull activeliang/rtr_wms-web'
+
+echo 'rsync .docker'
+rsync -av --delete ./.docker/ root@hk3.huiyutongwechat.top:/home/deploy/rtr_wms/.docker/
+
+echo "change remote pg user and password"
+ssh root@hk3.huiyutongwechat.top 'sed -i "s/POSTGRES_USER=liang/POSTGRES_USER=postgres/g" /home/deploy/rtr_wms/.docker/env_production.env && sed -i "s/POSTGRES_PASSWORD=postgres/POSTGRES_PASSWORD=kkkkkkkkkkkkkkkkkk/g" /home/deploy/rtr_wms/.docker/env_production.env'
+
+echo 'init log folder'
+ssh root@hk3.huiyutongwechat.top 'mkdir -p /tmp/sockets/rtr_wms && mkdir -p /var/www/rtr_wms'
+
+echo 'remote docker-compose up'
+ssh root@hk3.huiyutongwechat.top  'cd /home/deploy/rtr_wms && docker-compose down'
+
+echo 'remote docker-compose up'
+ssh root@hk3.huiyutongwechat.top  'cd /home/deploy/rtr_wms && RAILS_ENV=production docker compose up -d'
+
+

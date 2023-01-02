@@ -1,16 +1,17 @@
 <template>
-  <v-dialog v-model="dialog" :max-width="options.width" persistent :style="{ zIndex: options.zIndex }" @keydown.esc="cancel">
+  <v-dialog v-model="dialog" :max-width="width" persistent :style="{ zIndex: zIndex }" @keydown.esc="cancel">
     <v-card >
-      <v-toolbar :color="options.color" density="compact" flat>
-        <v-toolbar-title class="white--text">{{ title }}</v-toolbar-title>
+      <v-toolbar :color="type" density="compact" flat>
+        <v-icon class="ml-2">mdi-exclamation-thick</v-icon>
+        <v-toolbar-title class="ml-1 white--text">{{ title }}</v-toolbar-title>
       </v-toolbar>
 
       <v-card-text v-show="!!content" class="pa-4">{{ content }}</v-card-text>
       <v-card-actions class="pt-0">
         <v-spacer></v-spacer>
 
-        <v-btn color="grey" v-show="options.showCancel" text @click.native="cancel">取消</v-btn>
-        <v-btn color="primary darken-1" text @click.native="agree">{{ options.confirmBtnText }}</v-btn>
+        <v-btn color="grey" v-show="showCancel" text @click.native="cancel">取消</v-btn>
+        <v-btn color="primary darken-1" text @click.native="agree">{{ confirmBtnText }}</v-btn>
       </v-card-actions>
     </v-card>
 
@@ -48,6 +49,40 @@
  */
 import { useTheme } from 'vuetify'
 export default {
+  props: {
+    id: String,
+    type: {
+      validator: function (value) {
+        return ['success', 'warning', 'error', 'info'].includes(value);
+      },
+      default: 'info',
+      type: String,
+    },
+    width: {
+      type: Number,
+      default: 340,
+    },
+    zIndex: {
+      type: Number,
+      default: 999999,
+    },
+    content: {
+      type: String,
+      default: '是否继续操作？',
+    },
+    title: {
+      type: String,
+      default: '再次确认',
+    },
+    showCancel: {
+      type: Boolean,
+      default: true
+    },
+    confirmBtnText: {
+      type: String,
+      default: "确定"
+    }
+  },
   setup () {
     const theme = useTheme()
     return {
@@ -58,15 +93,6 @@ export default {
     dialog: false,
     resolve: null,
     reject: null,
-    content: '是否继续?',
-    title: '再次确认',
-    options: { 
-      color: 'info',
-      width: 290,
-      zIndex: 999999,
-      showCancel: true,
-      confirmBtnText: '确定'
-    }
   }),
   computed: {
     themeDark() {
@@ -74,14 +100,11 @@ export default {
     }
   },
   mounted() {
-    this.theme.global.name.value = localStorage.local_themeDark == 'true' ? 'dark' : 'light'
+    this.theme.global.name.value = localStorage.local_themeDark == 'false' ? 'light' : 'dark'
   },
   methods: {
-    open(options) {
+    open() {
       this.dialog = true
-      this.title = options.title
-      this.content = options.content
-      this.options = Object.assign(this.options, options)
       return new Promise((resolve, reject) => {
         this.resolve = resolve
         this.reject = reject

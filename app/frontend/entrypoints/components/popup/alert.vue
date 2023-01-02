@@ -1,6 +1,6 @@
 <template>
   <Transition @after-leave="onClose" enter-active-class="animate__animated animate__fadeInUp" leave-active-class="animate__animated animate__fadeOutUp">
-    <div :id="id" class="message" closable :style="{ top: top + 'px', width: 'fit-content', margin: '0 auto' }" v-show="visibled">
+    <div :id="id" class="my-global-message" closable :style="{ top: top + 'px', width: 'fit-content', margin: '0 auto' }" v-show="visibled">
       <v-alert class="alert" closable :type="type" @update:modelValue="handleInput" max-width="900" variant="flat" v-show="visibled">
         {{ message }}
       </v-alert>
@@ -32,7 +32,7 @@ export default {
       type: String,
       default: '',
     },
-    duration: {
+    timeout: {
       type: Number,
       default: 3000,
     },
@@ -46,12 +46,12 @@ export default {
     var stopTimer = undefined;
     // 开启定时器
     var startTimer = function () {
-      if (props.duration > 0) {
+      if (props.timeout > 0) {
         stopTimer = useTimeoutFn(function () {
           if (visibled.value) {
             close(); // 取消展示
           }
-        }, props.duration)
+        }, props.timeout)
       }
     };
     var clearTimer = function () {
@@ -83,15 +83,5 @@ export default {
 };
 </script>
 
-<style scoped >
-.message {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  transition: top 0.6s linear;
-}
-.message .alert {
-  margin: auto;
-}
+<style >
 </style>
