@@ -34,7 +34,7 @@ if [ $RAILS_ENV = "development" ]; then
 else
   # bundle exec puma -e production -C /myapp/config/puma.rb
   /usr/sbin/crond
-  mkdir -p /www && cp -rfT /rtr_wms/public /www
+  mkdir -p /www && cp -rfT /myapp/public /www
   bundle exec rails db:migrate
   cd /myapp && bundle exec rails s
 fi

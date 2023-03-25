@@ -10,6 +10,7 @@ Rails.application.routes.draw do
       resources :users do
         put :reset_password, on: :member
       end
+      match 'setting' => '/application#setting', via: [:get, :put]
     end
   end
   

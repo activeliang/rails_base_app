@@ -50,6 +50,14 @@ const router = createRouter({
           title: '后台首页',
         },
       },{
+        path: '/setting',
+        name: 'Setting',
+        component: modules[`/entrypoints/components/users/setting.vue`],
+        meta: {
+          title: 'Setting全局设置',
+          requireLogin: true
+        }
+      },{
         path: '/users',
         name: 'Users',
         component: modules[`/entrypoints/components/users/index.vue`],
@@ -77,7 +85,7 @@ router.beforeEach((to, from, next) => {
     if (store.getters.isAdmin) { // 通过vuex state获取当前的token是否存在
       next()
     } else {
-      router.$confirm({ content: '暂无权限，请登录一个管理员账号' })
+      router.$confirm('暂无权限，请登录一个管理员账号')
       next({
         path: '/login',
         query: {

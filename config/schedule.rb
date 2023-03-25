@@ -32,5 +32,5 @@ set :output, 'log/cron.log'
 
 # 数据库备份
 every 1.day, at: '4:30 am' do
-  command "cd /myapp && ./backup.rb"
+  command "cd /myapp/.docker/ && ./backup.rb"
 end

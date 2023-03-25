@@ -95,6 +95,7 @@ export default {
       ['mdi-delete', 'Trash'],
       ['mdi-alert-octagon', 'Spam'],
       ['mdi-account-multiple', '用户列表', '/users'],
+      ['mdi-cog', '全局设置', '/setting'],
     ],
     preEditItem: {
       old_password: {

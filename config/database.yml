@@ -17,5 +17,6 @@ test:
 
 production:
   <<: *default
-  user: liang
+  user: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
   database: <%= ENV['DATABASE_NAME'] %>
