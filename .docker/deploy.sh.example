@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# 定义一个函数来处理 Control + C 信号
+handle_sigint() {
+  echo -e "\n\033[31mUser interrupted script execution. Exiting...\033[0m"
+  exit 130
+}
+
+# 在脚本开始时设置 trap，以便在接收到 SIGINT 信号时调用 handle_sigint 函数
+trap handle_sigint SIGINT
+
+# 开始参数判断
+skip_first_two_steps=false
+
+while getopts ":f" opt; do
+  case ${opt} in
+    f ) skip_first_two_steps=true ;;
+    \? ) echo "Usage: script.sh [-f]"; exit 1 ;;
+  esac
+done
+
+if ! $skip_first_two_steps; then
+  echo -e "\033[34mBuild docker_app\033[0m"
+  RAILS_ENV=production docker build ./ --platform linux/amd64 -t activeliang/myapp-web -f ./.docker/Dockerfile --build-arg RAILS_ENV=production --build-arg HTTP_PROXY=http://host.docker.internal:7890 --build-arg https_proxy=http://host.docker.internal:7890
+
+  echo -e "\033[34mPush docker_app\033[0m"
+  docker push activeliang/myapp-web
+fi
+
+echo -e "\033[34mUpdate docker-compose.yml\033[0m"
+ssh root@8.219.235.248 mkdir -p /home/deploy/myapp/.docker
+scp ./.docker/docker-compose-production.yml root@8.219.235.248:/home/deploy/myapp/docker-compose.yml
+
+echo -e "\033[34mUpdate nginx.conf\033[0m"
+scp ./.docker/nginx.conf root@8.219.235.248:/etc/nginx/conf.d/myapp.conf
+
+echo -e "\033[34mSync .docker directory\033[0m"
+rsync -av --delete ./.docker/ root@8.219.235.248:/home/deploy/myapp/.docker/
+
+ssh root@8.219.235.248 'bash -s' <<EOF
+echo -e "\033[34mInit work folder\033[0m"
+mkdir -p /home/deploy && mkdir -p /home/deploy/myapp
+
+echo -e "\033[34mPull Image from Docker Hub\033[0m"
+docker pull activeliang/myapp-web
+
+echo -e "\033[34mChange remote pg user and password\033[0m"
+sed -i "s/POSTGRES_USER=liang/POSTGRES_USER=postgres/g" /home/deploy/myapp/.docker/env_production.env && sed -i "s/POSTGRES_PASSWORD=postgres/POSTGRES_PASSWORD=kkkkkkkkkkk/g" /home/deploy/myapp/.docker/env_production.env
+
+echo -e "\033[34mInit log folder\033[0m"
+mkdir -p /tmp/sockets/myapp && mkdir -p /var/www/myapp
+
+echo -e "\033[34mAdd monitor nginx conf\033[0m"
+chmod +x /home/deploy/myapp/.docker/monitor_nginx_conf.sh
+chmod +x /home/deploy/myapp/.docker/init_monitor_systemd.sh && /home/deploy/myapp/.docker/init_monitor_systemd.sh
+
+# 判断是否已有容器在运行
+OLD_CONTAINER_ID=\$(docker ps --filter "name=myapp" --format "{{.ID}}")
+if [[ ! -n "\$OLD_CONTAINER_ID" ]]; then
+  echo -e "\033[34m=> Service is not running. Starting the service.\033[0m"
+  cd /home/deploy/myapp && docker compose up -d
+  exit 0
+fi
+
+echo -e "\033[34mScale to 2 container\033[0m"
+cd /home/deploy/myapp && docker compose up -d --no-deps --no-recreate --scale web=2 web
+while ! find /tmp/sockets/myapp -type s -name "*.sock" | grep -q .; do
+  echo -e "\033[34mWaiting for new .sock file in socks directory...\033[0m"
+  sleep 1
+done
+echo -e "\033[34m已发现新增的.sock文件 准备继续下一步操作...\033[0m"
+
+echo -e "\033[34mScale back to 1 container\033[0m"
+cd /home/deploy/myapp && docker compose up -d --no-deps --no-recreate --scale web=1 web
+
+echo -e "\033[34mDatabase create\033[0m"
+sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw myapp || (cd /home/deploy/myapp && docker compose run web bundle exec rails db:create)
+EOF

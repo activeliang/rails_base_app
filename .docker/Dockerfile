@@ -99,7 +99,7 @@ COPY --from=vite_host /myapp/public/vite /myapp/public/vite
 COPY ./.docker/entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN bundle exec whenever --update-crontab
-RUN chmod +x /myapp/backup.rb
+RUN chmod +x /myapp/.docker/backup.rb
 # ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 3000
 

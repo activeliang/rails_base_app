@@ -1,7 +1,10 @@
 # 安装postgresql数据库
 sudo apt install -y postgresql postgresql-contrib
 # sudo systemctl start postgresql.service
-sudo -u postgres createdb rtr_wms
+# database password command: sudo -u postgres psql
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'kkkkkkkkkk';"
+# set password!!!!
+sudo -u postgres createdb myapp
 
 # 修改/etc/postgresql/9.5/main/postgresql.conf -> listen 0.0.0.0
 # 修改/etc/postgresql/9.5/main/pg_hba.conf ->+ host all all 0.0.0.0/0 md5
@@ -33,3 +36,5 @@ wget -qO- https://get.docker.com | sh
 sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
+# 安装nginx
+apt install -y nginx

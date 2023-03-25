@@ -55,6 +55,7 @@ gem 'exception-track', git: 'https://github.com/activeliang/exception-track', re
 gem 'ransack'
 gem 'whenever', require: false
 gem 'will_paginate'
+gem 'rack-cors', :require => 'rack/cors'
 
 
 group :development, :test do
