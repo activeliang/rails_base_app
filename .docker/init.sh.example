@@ -1,0 +1,92 @@
+bash -s <<EOF
+
+# 安装rsync/sudo/socat等基础套件
+apt install -y rsync sudo socat wget curl
+
+# 安装docker  
+wget -qO- https://get.docker.com | sh
+
+# 更新时间和时区
+# timedatectl set-timezone 'Asia/Shanghai' && sudo apt-get install ntpdate && ntpdate cn.pool.ntp.org
+sudo apt-get update
+sudo apt-get install systemd-timesyncd
+sudo systemctl start systemd-timesyncd
+sudo systemctl enable systemd-timesyncd
+sudo systemctl status systemd-timesyncd
+
+# 安装docker compose
+sudo curl -L https://github.com/docker/compose/releases/download/v2.14.0/docker-compose-linux-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# 安装postgresql数据库
+sudo apt install -y postgresql postgresql-contrib
+# sudo systemctl start postgresql.service
+# database password command: sudo -u postgres psql
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'mypassword';"
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'mypassword';"
+# set password!!!!
+sudo -u postgres createdb my_app
+
+# 修改/etc/postgresql/9.5/main/postgresql.conf -> listen 0.0.0.0
+# 修改/etc/postgresql/9.5/main/pg_hba.conf ->+ host all all 0.0.0.0/0 md5
+echo "listen_addresses = '0.0.0.0'" >> /etc/postgresql/*/main/postgresql.conf
+echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/*/main/pg_hba.conf
+service postgresql restart
+
+
+# 安装redis
+# sudo apt-get install -y redis-server
+# 安装最新版本或指定版本 https://redis.io/docs/getting-started/installation/install-redis-on-linux/
+
+# 安装redis
+# 安装最新版本的redis 
+sudo apt update
+sudo apt install -y lsb-release curl gpg
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+sudo apt-get -y update
+sudo apt-get -y install redis
+
+sudo sed -i 's/^bind 127.0.0.1/bind 0.0.0.0/' /etc/redis/redis.conf
+sudo sed -i 's/^protected-mode yes/protected-mode no/' /etc/redis/redis.conf
+sudo sed -i '/^save /d' /etc/redis/redis.conf
+sudo sh -c 'echo "save 900 1" >> /etc/redis/redis.conf'
+sudo sh -c 'echo "save 300 10" >> /etc/redis/redis.conf'
+sudo sh -c 'echo "save 60 10000" >> /etc/redis/redis.conf'
+sudo bash -c 'if grep -q "slave-read-only" /etc/redis/redis.conf; then sed -i "s/^slave-read-only yes/slave-read-only no/g" /etc/redis/redis.conf ; else echo "slave-read-only no" >> /etc/redis/redis.conf; fi'
+sudo systemctl enable redis-server
+sudo systemctl restart redis-server
+
+
+# 安装nginx
+apt install -y nginx
+
+# 安装监控nginx conf 文件夹的软件
+apt install -y inotify-tools
+
+# 安装防火墙
+apt install -y ufw
+sudo ufw --force reset
+echo y | sudo ufw default deny incoming
+echo y | sudo ufw default allow outgoing
+echo y | sudo ufw allow from 172.16.0.0/12
+echo y | sudo ufw allow from 172.17.0.0/12
+echo y | sudo ufw allow from 172.18.0.0/12
+echo y | sudo ufw allow 22
+echo y | sudo ufw allow 80
+echo y | sudo ufw allow 443
+echo y | sudo ufw allow 55570
+sudo ufw --force enable
+sudo ufw --force reload
+sudo ufw status verbose
+
+# 安装docker-rollout
+mkdir -p ~/.docker/cli-plugins && curl https://raw.githubusercontent.com/wowu/docker-rollout/master/docker-rollout -o ~/.docker/cli-plugins/docker-rollout && chmod +x ~/.docker/cli-plugins/docker-rollout
+EOF
+
+
+# sudo ufw disable
+
+# disable ssh password login
+# sudo sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+# sudo systemctl restart sshd

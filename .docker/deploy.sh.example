@@ -1,8 +1,22 @@
 #!/bin/bash
 
+target_host=xx.x.x.x.x # 这里改成你要部署的ip
+proxy_command=(-o ProxyCommand="nc -X 5 -x 127.0.0.1:7890 %h %p") # 这里是你要使用的http代理端口
+rsync_proxy=(--rsh="ssh -o 'ProxyCommand=nc -X 5 -x 127.0.0.1:7890 %h %p'") # 这里是你要使用的http代理端口
+
+# 函数名称：color_echo
+# 参数：
+# $1：字符串内容
+# $2：颜色代码（可选，默认为34，即蓝色）
+color_echo() {
+  local message="$1"
+  local color_code="${2:-34}"  # 默认为蓝色
+  echo -e "\033[${color_code}m${message}\033[0m"
+}
+
 # 定义一个函数来处理 Control + C 信号
 handle_sigint() {
-  echo -e "\n\033[31mUser interrupted script execution. Exiting...\033[0m"
+  color_echo "User interrupted script execution. Exiting..."
   exit 130
 }
 
@@ -11,7 +25,6 @@ trap handle_sigint SIGINT
 
 # 开始参数判断
 skip_first_two_steps=false
-
 while getopts ":f" opt; do
   case ${opt} in
     f ) skip_first_two_steps=true ;;
@@ -20,64 +33,77 @@ while getopts ":f" opt; do
 done
 
 if ! $skip_first_two_steps; then
-  echo -e "\033[34mBuild docker_app\033[0m"
-  RAILS_ENV=production docker build ./ --platform linux/amd64 -t activeliang/myapp-web -f ./.docker/Dockerfile --build-arg RAILS_ENV=production --build-arg HTTP_PROXY=http://host.docker.internal:7890 --build-arg https_proxy=http://host.docker.internal:7890
+  color_echo "Build docker_app..."
+  if ! RAILS_ENV=production docker build ./ --platform linux/amd64 -t activeliang/my_app-web -f ./.docker/Dockerfile --build-arg RAILS_ENV=production --build-arg HTTP_PROXY=http://host.docker.internal:7890 --build-arg https_proxy=http://host.docker.internal:7890; then
+    color_echo "docker build 失败", 31
+    exit 1
+  fi
 
-  echo -e "\033[34mPush docker_app\033[0m"
-  docker push activeliang/myapp-web
+  color_echo "Push docker_app..."
+  if ! docker push activeliang/my_app-web; then
+    color_echo "docker push 失败", 31
+    exit 1
+  fi
+  
 fi
 
-target_host=8.222.165.133
 
-echo -e "\033[34mInit work folder\033[0m"
-ssh root@$target_host 'mkdir -p /home/deploy && mkdir -p /home/deploy/myapp'
+color_echo "Init work folder"
+ssh -t "${proxy_command[@]}" root@$target_host 'mkdir -p /home/deploy && mkdir -p /home/deploy/my_app'
 
-echo -e "\033[34mUpdate docker-compose.yml\033[0m"
-ssh root@8.219.235.248 mkdir -p /home/deploy/myapp/.docker
-scp ./.docker/docker-compose-production.yml root@8.219.235.248:/home/deploy/myapp/docker-compose.yml
+color_echo "Update docker-compose.yml"
+scp "${proxy_command[@]}" ./.docker/docker-compose-production.yml root@$target_host:/home/deploy/my_app/docker-compose.yml
 
-echo -e "\033[34mUpdate nginx.conf\033[0m"
-scp ./.docker/nginx.conf root@8.219.235.248:/etc/nginx/conf.d/myapp.conf
+color_echo "Update nginx.conf"
+scp "${proxy_command[@]}" ./.docker/nginx.conf root@$target_host:/etc/nginx/conf.d/my_app.conf
 
-echo -e "\033[34mSync .docker directory\033[0m"
-rsync -av --delete ./.docker/ root@8.219.235.248:/home/deploy/myapp/.docker/
+color_echo "Sync .docker directory"
+rsync "${rsync_proxy[@]}" -av --delete ./.docker/ root@$target_host:/home/deploy/my_app/.docker/
 
-ssh root@8.219.235.248 'bash -s' <<EOF
-echo -e "\033[34mInit work folder\033[0m"
-mkdir -p /home/deploy && mkdir -p /home/deploy/myapp
+test_commands=$(cat << EOF
 
-echo -e "\033[34mPull Image from Docker Hub\033[0m"
-docker pull activeliang/myapp-web
+color_echo() {
+  echo "\$(tput setaf 2)\$1\$(tput sgr0)"
+}
 
-echo -e "\033[34mChange remote pg user and password\033[0m"
-sed -i "s/POSTGRES_USER=liang/POSTGRES_USER=postgres/g" /home/deploy/myapp/.docker/env_production.env && sed -i "s/POSTGRES_PASSWORD=postgres/POSTGRES_PASSWORD=kkkkkkkkkkk/g" /home/deploy/myapp/.docker/env_production.env
+color_echo "checking log ln"
+ln -ns /var/log/my_app-web /home/deploy/my_app-web/log
 
-echo -e "\033[34mInit log folder\033[0m"
-mkdir -p /tmp/sockets/myapp && mkdir -p /var/www/myapp
+color_echo "checking Database exist"
+sudo -u postgres psql -lqt 2>/dev/null | cut -d "|" -f 1 | grep -w 'my_app' > /dev/null 2>&1 || (sudo -u postgres createdb my_app && echo "数据库已成功创建")
 
-echo -e "\033[34mAdd monitor nginx conf\033[0m"
-chmod +x /home/deploy/myapp/.docker/monitor_nginx_conf.sh
-chmod +x /home/deploy/myapp/.docker/init_monitor_systemd.sh && /home/deploy/myapp/.docker/init_monitor_systemd.sh
+color_echo "Pull Image from Docker Hub"
+docker pull activeliang/my_app-web
 
-# 判断是否已有容器在运行
-OLD_CONTAINER_ID=\$(docker ps --filter "name=myapp" --format "{{.ID}}")
-if [[ ! -n "\$OLD_CONTAINER_ID" ]]; then
-  echo -e "\033[34m=> Service is not running. Starting the service.\033[0m"
-  cd /home/deploy/myapp && docker compose up -d
-  exit 0
-fi
+color_echo "Change remote pg user and password"
+sed -i "s/POSTGRES_USER=liang/POSTGRES_USER=postgres/g" /home/deploy/my_app/.docker/env_production.env && sed -i "s/POSTGRES_PASSWORD=postgres/POSTGRES_PASSWORD=mypassword/g" /home/deploy/my_app/.docker/env_production.env
 
-echo -e "\033[34mScale to 2 container\033[0m"
-cd /home/deploy/myapp && docker compose up -d --no-deps --no-recreate --scale web=2 web
-while ! find /tmp/sockets/myapp -type s -name "*.sock" | grep -q .; do
-  echo -e "\033[34mWaiting for new .sock file in socks directory...\033[0m"
-  sleep 1
-done
-echo -e "\033[34m已发现新增的.sock文件 准备继续下一步操作...\033[0m"
+color_echo "Init log folder"
+mkdir -p /tmp/sockets/my_app && mkdir -p /var/www/my_app
 
-echo -e "\033[34mScale back to 1 container\033[0m"
-cd /home/deploy/myapp && docker compose up -d --no-deps --no-recreate --scale web=1 web
+color_echo "Add monitor nginx conf"
+chmod +x /home/deploy/my_app/.docker/monitor_nginx_conf.sh
+chmod +x /home/deploy/my_app/.docker/init_monitor_systemd.sh && /home/deploy/my_app/.docker/init_monitor_systemd.sh
 
-echo -e "\033[34mDatabase create\033[0m"
-sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw myapp || (cd /home/deploy/myapp && docker compose run web bundle exec rails db:create)
+# 先清空已经退出的容器
+color_echo "clean exited container"
+set -e
+docker rm \$(docker ps -a -q -f status=exited) > /dev/null 2>&1 || true
+
+cd /home/deploy/my_app
+container_count=\$(docker ps --format '{{.Names}}' | grep "my_app" | grep "web" | wc -l)
+docker-compose up -d --no-deps --no-recreate
+[ \$container_count -ge 1 ] && docker rollout -t 600 web # 当已经有web实例才使用rollout
+
+color_echo "refresh nginx conf"
+source /home/deploy/my_app/.docker/simple_upstream_to_nginx.sh && update_nginx_conf >/dev/null 2>&1
+
+# 清理过期的镜像
+# color_echo "clear docker images"
+# docker system prune -a -f | tail -n 1
 EOF
+)
+
+
+ssh -t "${proxy_command[@]}" root@$target_host "echo -e '${test_commands}' | bash"
+

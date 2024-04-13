@@ -46,7 +46,7 @@ log
 *.env
 *.log
 deploy.sh
-.docker/init.sh
+init.sh
 
 
 # Vite Ruby

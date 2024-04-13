@@ -1,6 +1,6 @@
 #!/bin/bash
 
-target_host=89.185.31.134	
+target_host=89.185.31.111
 
 proxy_command=(-o ProxyCommand="nc -X 5 -x 127.0.0.1:7890 %h %p")
 
