@@ -61,7 +61,7 @@ export default {
       this.dialog = true
     },
     freezeItem(item) {
-      this.$confirm({ content: '是否继续冻结用户？' }).then(_ => {
+      this.$confirm('是否继续冻结用户？').then(_ => {
         this.$https.put(`users/${item.id}`, {
           is_freeze: true
         }).then(res => {

@@ -27,6 +27,11 @@ if ! $skip_first_two_steps; then
   docker push activeliang/myapp-web
 fi
 
+target_host=8.222.165.133
+
+echo -e "\033[34mInit work folder\033[0m"
+ssh root@$target_host 'mkdir -p /home/deploy && mkdir -p /home/deploy/myapp'
+
 echo -e "\033[34mUpdate docker-compose.yml\033[0m"
 ssh root@8.219.235.248 mkdir -p /home/deploy/myapp/.docker
 scp ./.docker/docker-compose-production.yml root@8.219.235.248:/home/deploy/myapp/docker-compose.yml

@@ -102,7 +102,7 @@ router.beforeEach((to, from, next) => {
       // }).then((confirm) => {
       //   console.log('close')
       // })
-      router.$confirm({ content: '请先登录' })
+      router.$confirm('请先登录')
       next({
         path: '/login',
         query: {

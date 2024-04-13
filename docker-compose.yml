@@ -4,6 +4,10 @@ services:
     build: 
       context: ./
       dockerfile: ./.docker/Dockerfile
+      args:
+        HTTP_PROXY: http://host.docker.internal:7890
+        HTTPS_PROXY: http://host.docker.internal:7890
+        NO_PROXY: localhost,127.0.0.1
     tty: true
     stdin_open: true
     environment:
@@ -19,6 +23,23 @@ services:
     ports:
       - "3000:3000"
       - "3036:3036"
+    volumes_from:
+      - box
+  
+  sidekiq:
+    image: my_app-web
+    tty: true
+    stdin_open: true
+    environment:
+      VITE_RUBY_HOST: 0.0.0.0
+      TZ: Asia/Shanghai
+    env_file:
+      - ./.docker/env_${RAILS_ENV:-development}.env
+    command: bundle exec sidekiq
+    volumes:
+      - .:/my_app
+      # - vendor:/usr/src/app/node_modules
+      # - /var/log/my_app:/app/my_app/log
     volumes_from:
       - box
 

@@ -1,5 +1,7 @@
 .git 
 .docker/*.env 
+.docker/init.sh
+.docker/deploy.sh
 log/*.log 
 tmp
 public/vite-*

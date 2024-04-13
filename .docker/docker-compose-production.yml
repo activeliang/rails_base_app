@@ -18,6 +18,22 @@ services:
       - "host.docker.internal:host-gateway"
     restart: always
 
+  # sidekiq:
+  #   image: activeliang/my_app-web
+  #   environment:
+  #     TZ: Asia/Shanghai
+  #     VITE_RUBY_HOST: 0.0.0.0
+  #     RAILS_ENV: production
+  #   env_file:
+  #     - ./.docker/env_production.env
+  #   command: bundle exec sidekiq -L /my_app/log/sidekiq.log
+  #   volumes:
+  #     - /var/log/my_app:/my_app/log
+  #     - ./docker:/my_app/docker
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   restart: always
+
   # web_ws:
   #   image: activeliang/myapp-web
   #   env_file:

@@ -4,8 +4,9 @@ module Setting
       construct = {
         is_keep_pos_balance: false
       }
+      keys = construct.keys.map(&:to_s)
       data = JSON.parse($redis.get("#{ENV['DATABASE_NAME']}_global_setting")) rescue {}
-      construct.stringify_keys.merge(data)
+      construct.stringify_keys.merge(data).slice(*keys)
     end
 
     def bulk_set data
@@ -14,13 +15,13 @@ module Setting
     end
 
     def get key
-      config[key]
+      config[key.to_s]
     end
 
     def set k, v
       return if k.blank?
       old_config = config
-      old_config[k] = v
+      old_config[k.to_s] = v
       $redis.set "#{ENV['DATABASE_NAME']}_global_setting", old_config.to_json
     end
   end

@@ -67,7 +67,7 @@ export default {
         invite: this.invite.value
       }).then(res => {
         console.log(res.data)
-        this.$confirm.open('提示', "已完成注册，可以去手机APP登录了")
+        this.$confirm("已完成注册，可以去手机APP登录了")
       }).catch(res => {
         console.log('===> sign error: ', res.response.data)
         const err = res.response.data

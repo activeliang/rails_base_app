@@ -142,7 +142,7 @@ export default {
       this.dialog = true
     },
     preLogout() {
-      this.$confirm({ content: '是否继续退出登录?', color: 'red' }).then(_ => {
+      this.$confirm('是否继续退出登录?', { color: 'red' }).then(_ => {
         this.logout()
         this.$router.push('/')
       })

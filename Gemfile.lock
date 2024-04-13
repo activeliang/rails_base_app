@@ -9,7 +9,7 @@ GIT
       will_paginate
 
 GEM
-  remote: https://mirrors.tuna.tsinghua.edu.cn/rubygems/
+  remote: https://mirrors.tencent.com/rubygems/
   specs:
     actioncable (7.0.4)
       actionpack (= 7.0.4)
@@ -115,6 +115,8 @@ GEM
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.1)
+    faraday-retry (2.1.0)
+      faraday (~> 2.0)
     globalid (1.0.0)
       activesupport (>= 5.0)
     i18n (1.12.0)
@@ -285,6 +287,7 @@ DEPENDENCIES
   debug
   exception-track!
   faraday
+  faraday-retry
   importmap-rails
   jbuilder
   jwt_sessions

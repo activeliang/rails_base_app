@@ -1,4 +1,4 @@
-source "https://mirrors.tuna.tsinghua.edu.cn/rubygems/"
+source "https://mirrors.tencent.com/rubygems/"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.1.2"
@@ -51,6 +51,7 @@ gem "bootsnap", require: false
 gem 'vite_rails'
 gem "jwt_sessions"
 gem 'faraday'
+gem 'faraday-retry'
 gem 'exception-track', git: 'https://github.com/activeliang/exception-track', ref: '4361282'
 gem 'ransack'
 gem 'whenever', require: false
@@ -65,6 +66,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'awesome_rails_console'
   gem 'pry-rails'
+  gem 'bullet'
 end
 
 group :development do

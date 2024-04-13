@@ -17,7 +17,10 @@ worker_timeout 3600 if ENV.fetch("RAILS_ENV", "development") == "development"
 #
 port ENV.fetch("PORT") { 3000 } if RAILS_ENV = 'development'
 
-bind "unix:///myapp/tmp/sockets/puma.sock" if RAILS_ENV = 'production'
+new_sock_path = "/my_app/tmp/sockets/puma_#{SecureRandom.urlsafe_base64(5)}.sock"
+File.open("tmp/current_puma_sock", "w+"){|x| x.write new_sock_path } # 保存sock文件信息, 文件docker进行健康检查
+bind "unix://#{new_sock_path}" if ENV.fetch("RAILS_ENV") { "development" } == 'production'
+
 
 # Specifies the `environment` that Puma will run in.
 #
